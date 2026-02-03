@@ -1,0 +1,44 @@
+@keyframes pulse-sos {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+        transform: scale(1);
+    }
+
+    70% {
+        box-shadow: 0 0 0 20px rgba(255, 0, 0, 0);
+        transform: scale(1.05);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+        transform: scale(1);
+    }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.delay-100 {
+    animation-delay: 100ms;
+}
+
+.delay-200 {
+    animation-delay: 200ms;
+}
+
+.delay-300 {
+    animation-delay: 300ms;
+}

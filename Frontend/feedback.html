@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback | FixRide</title>
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        .star-container {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0 2rem;
+        }
+
+        .star-icon {
+            font-size: 2.5rem;
+            color: #444;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-icon.active {
+            color: var(--color-warning);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+                <img src="assets/img/logo.png" alt="Logo" style="width:60px; height:60px;">
+                <span class="text-gradient" style="font-family: 'Outfit', sans-serif;">Fix<span
+                        style="color:white; font-style:italic">Ride</span></span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px; max-width: 600px;">
+        <div class="card glass animate-fade-in" style="text-align: center;">
+            <ion-icon name="checkmark-circle"
+                style="font-size: 4rem; color: var(--color-success); margin-bottom: 1rem;"></ion-icon>
+            <h2>Service Completed!</h2>
+            <p class="text-muted">We hope you're back on the road safely.</p>
+
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 2rem 0;">
+
+            <h3>Rate your Mechanic (Rajesh)</h3>
+            <div class="star-container" id="mech-stars">
+                <ion-icon name="star" class="star-icon" onclick="rate(1, 'mech')"></ion-icon>
+                <ion-icon name="star" class="star-icon" onclick="rate(2, 'mech')"></ion-icon>
+                <ion-icon name="star" class="star-icon" onclick="rate(3, 'mech')"></ion-icon>
+                <ion-icon name="star" class="star-icon" onclick="rate(4, 'mech')"></ion-icon>
+                <ion-icon name="star" class="star-icon" onclick="rate(5, 'mech')"></ion-icon>
+            </div>
+
+            <h3>Rate FixRide App</h3>
+            <div class="star-container" id="app-stars">
+                <ion-icon name="star" class="star-icon" onclick="rate(1, 'app')"></ion-icon>
+                <ion-icon name="star" class="star-icon" onclick="rate(2, 'app')"></ion-icon>
+                <ion-icon name="star" class="star-icon" onclick="rate(3, 'app')"></ion-icon>
+                <ion-icon name="star" class="star-icon" onclick="rate(4, 'app')"></ion-icon>
+                <ion-icon name="star" class="star-icon" onclick="rate(5, 'app')"></ion-icon>
+            </div>
+
+            <div class="input-group">
+                <textarea class="input-field" rows="3" placeholder="Any additional feedback?"></textarea>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="submitFeedback()">Submit
+                Review</button>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        function rate(stars, type) {
+            const container = document.getElementById(`${type}-stars`);
+            const icons = container.querySelectorAll('ion-icon');
+            icons.forEach((icon, index) => {
+                if (index < stars) icon.classList.add('active');
+                else icon.classList.remove('active');
+            });
+        }
+
+        function submitFeedback() {
+            const btn = document.querySelector('button');
+            btn.innerHTML = 'Submitting...';
+            setTimeout(() => {
+                btn.innerHTML = 'Thank You!';
+                btn.style.background = 'var(--color-success)';
+                btn.style.boxShadow = 'none';
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // Back to home
+                }, 1500);
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>

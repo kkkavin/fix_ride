@@ -1,0 +1,41 @@
+:root {
+    /* Colors */
+    --color-bg-dark: #0a0a0f;
+    --color-bg-card: rgba(255, 255, 255, 0.05);
+    --color-primary: #ff6b00; /* Safety Orange */
+    --color-primary-glow: rgba(255, 107, 0, 0.5);
+    --color-secondary: #00f0ff; /* Electric Blue */
+    --color-secondary-glow: rgba(0, 240, 255, 0.5);
+    --color-text-main: #ffffff;
+    --color-text-muted: #a0a0b0;
+    --color-success: #00ff9d;
+    --color-danger: #ff4d4d;
+    --color-warning: #ffd700;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #ff6b00 0%, #ff9100 100%);
+    --gradient-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+
+    /* Typography */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 4rem;
+    --spacing-xl: 8rem;
+
+    /* Borders & Radius */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+    --border-glass: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* Shadows */
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --shadow-glow-primary: 0 0 20px var(--color-primary-glow);
+    --shadow-glow-secondary: 0 0 20px var(--color-secondary-glow);
+}

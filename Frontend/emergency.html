@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Assistance | FixRide</title>
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        .map-container {
+            height: 40vh;
+            width: 100%;
+            background-color: #2a2a2a;
+            position: relative;
+            overflow: hidden;
+            border-bottom: var(--border-glass);
+        }
+
+        .map-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+        }
+
+        .pin-pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 0 rgba(255, 107, 0, 0.4);
+            animation: pulse-orange 2s infinite;
+        }
+
+        @keyframes pulse-orange {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(255, 107, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 0, 0);
+            }
+        }
+
+        .workflow-container {
+            padding: 1rem;
+            margin-top: -30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .step-card {
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-step {
+            height: 4px;
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            transition: background 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: var(--color-primary);
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .selection-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .selection-item.selected {
+            border-color: var(--color-primary);
+            background: rgba(255, 107, 0, 0.1);
+        }
+
+        .hidden-step {
+            display: none;
+        }
+
+        .finding-mechanic {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .radar-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Simplified Nav -->
+    <nav class="navbar" style="position: absolute; background: transparent;">
+        <div class="container nav-content">
+            <a href="index.html" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+                <img src="assets/img/logo.png" alt="Logo" style="width:60px; height:60px;">
+                <span class="text-gradient" style="font-family: 'Outfit', sans-serif;">Fix<span
+                        style="color:white; font-style:italic">Ride</span></span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Map View -->
+    <div class="map-container">
+        <!-- Placeholder for actual map API, simulated with image/div -->
+        <div
+            style="width:100%; height:100%; background: #1a1a20; display: flex; align-items: center; justify-content: center; color: #333; font-weight: bold; font-size: 2rem; background-image: radial-gradient(#333 1px, transparent 1px); background-size: 30px 30px;">
+            MAP VIEW
+        </div>
+        <div class="pin-pulse"></div>
+        <div
+            style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem;">
+            <ion-icon name="location"></ion-icon> NH-44, Near Km 125
+        </div>
+    </div>
+
+    <!-- Workflow Panel -->
+    <div class="container workflow-container">
+        <div class="card glass step-card animate-fade-in" id="workflow-card">
+
+            <!-- Progress -->
+            <div class="progress-bar">
+                <div class="progress-step active" id="p1"></div>
+                <div class="progress-step" id="p2"></div>
+                <div class="progress-step" id="p3"></div>
+            </div>
+
+            <!-- Step 1: Vehicle Type -->
+            <div id="step-1" class="step-content">
+                <h2>What are you driving?</h2>
+                <p class="text-muted" style="margin-bottom: 2rem;">Select your vehicle type for appropriate service.</p>
+
+                <div class="selection-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="selection-item selected" onclick="selectOption(this, 'vehicle', 'car')">
+                        <ion-icon name="car-sport" size="large"></ion-icon>
+                        <div style="margin-top:0.5rem">Car</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'vehicle', 'bike')">
+                        <ion-icon name="bicycle" size="large"></ion-icon>
+                        <div style="margin-top:0.5rem">Bike</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'vehicle', 'auto')">
+                        <ion-icon name="alert-circle-outline"
+                            style="font-size: 2rem; transform: rotate(90deg)"></ion-icon>
+                        <!-- Closest icon for Auto Rickshaw until custom SVG -->
+                        <div style="margin-top:0.5rem">Auto</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'vehicle', 'heavy')">
+                        <ion-icon name="bus" size="large"></ion-icon>
+                        <div style="margin-top:0.5rem">Truck/Bus</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'vehicle', 'ev')">
+                        <ion-icon name="battery-charging" size="large"></ion-icon>
+                        <div style="margin-top:0.5rem">EV</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'vehicle', 'other')">
+                        <ion-icon name="help-circle" size="large"></ion-icon>
+                        <div style="margin-top:0.5rem">Other</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" class="input-field" placeholder=" ">
+                    <label class="input-label">Vehicle Info (Optional)</label>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%;" onclick="nextStep(2)">Next: Describe Issue</button>
+            </div>
+
+            <!-- Step 2: Problem -->
+            <div id="step-2" class="step-content hidden-step">
+                <h2>What's the problem?</h2>
+                <p class="text-muted" style="margin-bottom: 2rem;">Help us send the right expert.</p>
+
+                <div class="selection-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="selection-item selected" onclick="selectOption(this, 'issue', 'tyre')">
+                        <ion-icon name="disc" size="large"></ion-icon>
+                        <div>Flat Tyre</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'issue', 'battery')">
+                        <ion-icon name="flash" size="large"></ion-icon>
+                        <div>Battery Jump</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'issue', 'engine')">
+                        <ion-icon name="cog" size="large"></ion-icon>
+                        <div>Engine/Breakdown</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'issue', 'accident')">
+                        <ion-icon name="alert-circle" size="large"></ion-icon>
+                        <div>Accident/Tow</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'issue', 'fuel')">
+                        <ion-icon name="water" size="large"></ion-icon>
+                        <div>Fuel Refill</div>
+                    </div>
+                    <div class="selection-item" onclick="selectOption(this, 'issue', 'other')">
+                        <ion-icon name="help-circle" size="large"></ion-icon>
+                        <div>Other Issue</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" class="input-field" placeholder=" ">
+                    <label class="input-label">Additional Notes (Optional)</label>
+                </div>
+
+                <p id="issue-error"
+                    style="color:var(--color-danger); display:none; text-align:center; margin-bottom:1rem;">Please
+                    select an issue type.</p>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="nextStep(1)">Back</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="validateAndNext(3)">Find Help</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Searching/Found -->
+            <div id="step-3" class="step-content hidden-step">
+                <div id="searching-view">
+                    <div class="finding-mechanic">
+                        <div class="radar-spinner"></div>
+                        <h3>Broadcasting Distress Signal...</h3>
+                        <p class="text-muted">Contacting nearby mechanics (3 found)</p>
+                    </div>
+                </div>
+
+                <div id="found-view" class="hidden-step animate-fade-in">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <ion-icon name="checkmark-circle"
+                            style="color: var(--color-success); font-size: 4rem;"></ion-icon>
+                        <h3>Help is on the way!</h3>
+                        <p>Arriving in <strong>12 mins</strong></p>
+                    </div>
+
+                    <div class="card"
+                        style="background: rgba(255,255,255,0.1); display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="width: 50px; height: 50px; background: #ddd; border-radius: 50%;"></div>
+                        <!-- Avatar Placeholder -->
+                        <div>
+                            <h4 style="margin: 0;">Rajesh Motors</h4>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted);">Toyota Innova Service Van</p>
+                        </div>
+                        <div style="margin-left: auto;">
+                            <a href="tel:123" class="btn btn-primary"
+                                style="width: 40px; height: 40px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <ion-icon name="call"></ion-icon>
+                            </a>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%;"
+                        onclick="window.location.href='dashboard-customer.html'">Track Live</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="assets/js/emergency.js"></script>
+</body>
+
+</html>

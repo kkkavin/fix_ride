@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | FixRide</title>
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            position: relative;
+        }
+
+        .auth-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, #0a0a0f 100%);
+            z-index: -1;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: var(--radius-full);
+        }
+
+        .role-btn {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+        }
+
+        .role-btn.active {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .role-btn.active[data-role="mechanic"] {
+            background: var(--color-secondary);
+            color: #000;
+        }
+
+        .role-btn.active[data-role="tow"] {
+            background: var(--color-warning);
+            color: #000;
+        }
+
+        .error-msg {
+            color: var(--color-danger);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+                <img src="assets/img/logo.png" alt="Logo" style="width:60px; height:60px;">
+                <span class="text-gradient" style="font-family: 'Outfit', sans-serif;">Fix<span
+                        style="color:white; font-style:italic">Ride</span></span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card card glass">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Join FixRide</h2>
+
+            <div class="role-selector">
+                <div class="role-btn active" data-role="customer" onclick="setRole('customer')">Customer</div>
+                <div class="role-btn" data-role="mechanic" onclick="setRole('mechanic')">Mechanic</div>
+                <div class="role-btn" data-role="tow" onclick="setRole('tow')">Tow Driver</div>
+            </div>
+
+            <form id="register-form" onsubmit="handleRegister(event)" novalidate>
+                <div class="input-group">
+                    <input type="text" id="fullname" class="input-field" placeholder=" " required>
+                    <label for="fullname" class="input-label">Full Name</label>
+                </div>
+
+                <div class="input-group">
+                    <input type="tel" id="mobile" class="input-field" placeholder=" " required>
+                    <label for="mobile" class="input-label">Mobile Number</label>
+                </div>
+
+                <div class="input-group">
+                    <input type="email" id="email" class="input-field" placeholder=" " required>
+                    <label for="email" class="input-label">Email Address</label>
+                    <div id="email-error" class="error-msg">Valid email with '@' required.</div>
+                </div>
+
+                <div class="input-group">
+                    <input type="password" id="password" class="input-field" placeholder=" " required>
+                    <label for="password" class="input-label">Create Password</label>
+                    <div id="password-error" class="error-msg">Min 8 chars, 1 digit, 1 alpha, 1 special char.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem; color: var(--color-text-muted);">
+                Already have an account? <a href="auth.html"
+                    style="color: var(--color-primary); font-weight: 600;">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Placeholder (Global) -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Copy branding specific JS if needed or import
+        function setRole(role) {
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.role-btn[data-role="${role}"]`).classList.add('active');
+
+            const btn = document.querySelector('button[type="submit"]');
+            btn.style.boxShadow = '';
+
+            if (role === 'mechanic') {
+                btn.style.background = 'var(--color-secondary)';
+                btn.style.color = 'black';
+                btn.style.boxShadow = 'var(--shadow-glow-secondary)';
+            } else if (role === 'tow') {
+                btn.style.background = 'var(--color-warning)';
+                btn.style.color = 'black';
+            } else {
+                btn.style.background = 'var(--gradient-primary)';
+                btn.style.color = 'white';
+                btn.style.boxShadow = 'var(--shadow-glow-primary)';
+            }
+        }
+
+        function validateEmail(email) { return email.includes('@'); }
+        function validatePassword(password) {
+            const hasLength = password.length >= 8;
+            const hasDigit = /\d/.test(password);
+            const hasAlpha = /[a-zA-Z]/.test(password);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            return hasLength && hasDigit && hasAlpha && hasSpecial;
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            let isValid = true;
+
+            if (!validateEmail(email)) {
+                document.getElementById('email-error').style.display = 'block';
+                isValid = false;
+            } else document.getElementById('email-error').style.display = 'none';
+
+            if (!validatePassword(password)) {
+                document.getElementById('password-error').style.display = 'block';
+                isValid = false;
+            } else document.getElementById('password-error').style.display = 'none';
+
+            if (isValid) {
+                const btn = e.target.querySelector('button');
+                btn.innerHTML = 'Creating Account...';
+
+                // Simulation: Store role in localStorage for next step
+                const role = document.querySelector('.role-btn.active').dataset.role;
+                localStorage.setItem('userRole', role);
+
+                setTimeout(() => {
+                    alert('Registration Successful! Please Login.');
+                    window.location.href = 'auth.html';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+
+</html>

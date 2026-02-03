@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tow Pilot Dashboard | FixRide</title>
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        /* Tow specific styles similar to mechanic */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #777;
+            border: 2px solid var(--color-warning);
+        }
+
+        .stats-circle-container {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+
+        .stats-svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 8;
+        }
+
+        .circle-progress {
+            fill: none;
+            stroke: var(--color-warning);
+            stroke-width: 8;
+            stroke-dasharray: 280;
+            stroke-dashoffset: 40;
+            transition: 1s ease-out;
+        }
+
+        .stats-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .stat-grid-leet {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .leet-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .lc-label {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .lc-val {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .lc-sub {
+            font-size: 0.8rem;
+            color: var(--color-success);
+        }
+
+        .request-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #1a1a1f;
+            padding: 2rem;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+            z-index: 2000;
+            border-top: 2px solid var(--color-warning);
+        }
+
+        .request-modal.active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+                <img src="assets/img/logo.png" alt="Logo" style="width:60px; height:60px;">
+                <span class="text-gradient" style="font-family: 'Outfit', sans-serif;">Fix<span
+                        style="color:white; font-style:italic">Ride</span></span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <label class="switch" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <span style="color:var(--color-success); font-weight:600;">ACTIVE</span>
+                    <div
+                        style="width:10px; height:10px; background:var(--color-success); border-radius:50%; box-shadow:0 0 10px var(--color-success);">
+                    </div>
+                </label>
+                <a href="index.html" class="btn btn-secondary" style="padding:0.4rem 1rem; font-size:0.8rem;">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 80px;">
+        <!-- Welcome & Profile -->
+        <div class="profile-header">
+            <div class="profile-avatar"><ion-icon name="bus"></ion-icon></div>
+            <div>
+                <h2 style="margin:0;">Captain Mike</h2>
+                <p class="text-muted">Heavy Tow Expert • 4.9 <ion-icon name="star"
+                        style="color:var(--color-warning)"></ion-icon></p>
+            </div>
+        </div>
+
+        <!-- LeetCode Style Progress -->
+        <h3 style="margin-bottom: 1rem;">Performance Specs</h3>
+        <div class="stat-grid-leet">
+            <div class="leet-card" style="display:flex; flex-direction:column; align-items:center;">
+                <div class="stats-circle-container">
+                    <svg class="stats-svg">
+                        <circle cx="60" cy="60" r="45" class="circle-bg"></circle>
+                        <circle cx="60" cy="60" r="45" class="circle-progress"></circle>
+                    </svg>
+                    <div class="stats-text">
+                        <div style="font-size: 1.5rem; font-weight: 700;">92%</div>
+                        <div style="font-size: 0.7rem; color: #888;">Acceptance</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="leet-card">
+                <div class="lc-label">Total Earnings</div>
+                <div class="lc-val">₹42,100</div>
+                <div class="lc-sub">↑ ₹3,500 this week</div>
+            </div>
+
+            <div class="leet-card">
+                <div class="lc-label">Recoveries</div>
+                <div class="lc-val">87</div>
+                <div class="lc-sub">Vehicles Towed</div>
+            </div>
+
+            <div class="leet-card">
+                <div class="lc-label">Status</div>
+                <div class="lc-val" style="color: var(--color-warning);">Patrolling</div>
+                <div class="lc-sub">NH-44 Sector</div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 1rem;">Recovery History</h3>
+        <div class="card glass">
+            <table style="width:100%; text-align:left; color:#ccc;">
+                <tr style="border-bottom:1px solid #333;">
+                    <th style="padding:10px;">ID</th>
+                    <th>Type</th>
+                    <th>Earned</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td style="padding:10px;">#9921</td>
+                    <td>SUV Tow - 15km</td>
+                    <td style="color:var(--color-success);">₹1,200</td>
+                    <td><span style="color:#888;">Completed</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Job Request Modal -->
+    <div id="job-modal" class="request-modal">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <h2 style="color: var(--color-warning);">Emergency Tow Request!</h2>
+            <p>5.1km • Accident/Breakdown</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-secondary" style="flex: 1;" onclick="rejectJob()">Reject</button>
+            <button class="btn btn-primary" style="flex: 1; background: var(--color-warning); color: black;"
+                onclick="acceptJob()">Accept Tow</button>
+        </div>
+    </div>
+
+    <!-- Invoice Generation Modal -->
+    <div id="invoice-modal" class="request-modal" style="height: 100%; top: 0; z-index: 3000; padding-top: 80px;">
+        <div class="container">
+            <h2>Tow Completed</h2>
+            <p class="text-muted">Generate invoice for the customer.</p>
+
+            <div class="card glass" style="margin-top: 1rem;">
+                <div class="input-group">
+                    <label class="input-label" style="position:relative; margin-bottom:0.5rem; display:block;">Towing
+                        Charges (₹)</label>
+                    <input type="number" id="cost" class="input-field" value="1500">
+                </div>
+                <div
+                    style="display:flex; justify-content:space-between; margin:1rem 0; font-weight:bold; font-size:1.2rem;">
+                    <span>Total</span>
+                    <span id="total-calc">₹1500</span>
+                </div>
+                <button class="btn btn-primary" style="width:100%; background:var(--color-warning); color:black;"
+                    onclick="sendInvoice()">Send Invoice</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Simulation
+        setTimeout(() => { document.getElementById('job-modal').classList.add('active'); }, 2500);
+
+        function acceptJob() {
+            document.getElementById('job-modal').classList.remove('active');
+            alert('Heading to Vehicle Location... (Simulated)');
+            setTimeout(() => {
+                document.getElementById('invoice-modal').classList.add('active');
+            }, 3500);
+        }
+
+        function rejectJob() { document.getElementById('job-modal').classList.remove('active'); }
+
+        function sendInvoice() {
+            const btn = document.querySelector('#invoice-modal .btn-primary');
+            btn.innerHTML = 'Sent!';
+            setTimeout(() => {
+                document.getElementById('invoice-modal').classList.remove('active');
+                alert('Invoice Sent! Waiting for Payment...');
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>

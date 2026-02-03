@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Roadside Rescue</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.03);
+            border-right: var(--border-glass);
+            padding: 2rem 1rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+            color: var(--color-text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(255, 107, 0, 0.1);
+            color: var(--color-primary);
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .stat-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--color-text-muted);
+        }
+
+        .data-table th,
+        .data-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table th {
+            color: white;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .badge-verified {
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--color-success);
+        }
+
+        .badge-pending {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--color-warning);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo text-gradient" style="margin-bottom: 3rem; padding-left: 1rem;">AdminPortal</div>
+
+            <a href="#" class="sidebar-link active">
+                <ion-icon name="grid"></ion-icon> Dashboard
+            </a>
+            <a href="#" class="sidebar-link">
+                <ion-icon name="people"></ion-icon> Users
+            </a>
+            <a href="#" class="sidebar-link">
+                <ion-icon name="briefcase"></ion-icon> Mechanics
+            </a>
+            <a href="#" class="sidebar-link">
+                <ion-icon name="wallet"></ion-icon> Finance
+            </a>
+            <a href="index.html" class="sidebar-link" style="margin-top: auto;">
+                <ion-icon name="log-out"></ion-icon> Logout
+            </a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Overview</h2>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="btn btn-secondary" style="padding: 0.5rem;">
+                        <ion-icon name="notifications"></ion-icon>
+                    </button>
+                    <div
+                        style="width: 40px; height: 40px; background: var(--color-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                        AD
+                    </div>
+                </div>
+            </header>
+
+            <div class="stat-grid-3">
+                <div class="card glass">
+                    <div class="text-muted">Total Revenue</div>
+                    <div style="font-size: 2rem; font-weight: 700; color: white;">₹4,25,000</div>
+                    <div style="color: var(--color-success);">+12% this week</div>
+                </div>
+                <div class="card glass">
+                    <div class="text-muted">Active Mechanics</div>
+                    <div style="font-size: 2rem; font-weight: 700; color: white;">42</div>
+                    <div style="color: var(--color-primary);">12 Currently Busy</div>
+                </div>
+                <div class="card glass">
+                    <div class="text-muted">Platform Fee (3%)</div>
+                    <div style="font-size: 2rem; font-weight: 700; color: white;">₹12,750</div>
+                </div>
+            </div>
+
+            <!-- Recent Requests Table -->
+            <h3>Live Requests</h3>
+            <div class="card glass" style="margin-top: 1rem; overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Issue</th>
+                            <th>Status</th>
+                            <th>Mechanic</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#REQ-892</td>
+                            <td>Kavin Kumar</td>
+                            <td>Flat Tyre</td>
+                            <td><span class="badge badge-pending">Searching</span></td>
+                            <td>--</td>
+                            <td><button class="btn btn-secondary"
+                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Override</button></td>
+                        </tr>
+                        <tr>
+                            <td>#REQ-891</td>
+                            <td>Sarah J</td>
+                            <td>Battery Dead</td>
+                            <td><span class="badge badge-verified">Assigned</span></td>
+                            <td>Rajesh M</td>
+                            <td><button class="btn btn-secondary"
+                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Track</button></td>
+                        </tr>
+                        <tr>
+                            <td>#REQ-890</td>
+                            <td>Mike T</td>
+                            <td>Accident/Tow</td>
+                            <td><span class="badge badge-verified">In Progress</span></td>
+                            <td>QuickTow Inc</td>
+                            <td><button class="btn btn-secondary"
+                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Track</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+
+</html>

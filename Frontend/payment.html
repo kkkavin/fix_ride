@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment | FixRide</title>
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        .payment-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            padding-top: 80px;
+            /* Added for navbar */
+        }
+
+        /* ... existing styles ... */
+        .payment-card {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-muted);
+        }
+
+        .bill-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .payment-method {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .method-btn {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .method-btn.active {
+            border-color: var(--color-primary);
+            background: rgba(255, 107, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+                <img src="assets/img/logo.png" alt="Logo" style="width:60px; height:60px;">
+                <span class="text-gradient" style="font-family: 'Outfit', sans-serif;">Fix<span
+                        style="color:white; font-style:italic">Ride</span></span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="payment-container">
+        <div class="card glass payment-card animate-fade-in">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Invoice #INV-2024001</h2>
+
+            <div style="margin-bottom: 2rem;">
+                <div class="bill-row">
+                    <span>Service</span>
+                    <span>Flat Tyre Repair</span>
+                </div>
+                <div class="bill-row">
+                    <span>Base Fare</span>
+                    <span>₹350.00</span>
+                </div>
+                <div class="bill-row">
+                    <span>Convenience Fee (3%)</span>
+                    <span>₹10.50</span>
+                </div>
+                <div class="bill-row">
+                    <span>Tax (18% GST)</span>
+                    <span>₹64.50</span>
+                </div>
+                <div class="bill-total">
+                    <span>Total</span>
+                    <span>₹425.00</span>
+                </div>
+            </div>
+
+            <h4 style="margin-bottom: 1rem;">Payment Method</h4>
+            <div class="payment-method">
+                <div class="method-btn active" onclick="selectMethod(this)">
+                    <ion-icon name="card"></ion-icon>
+                    <div>Card</div>
+                </div>
+                <div class="method-btn" onclick="selectMethod(this)">
+                    <ion-icon name="logo-google"></ion-icon>
+                    <div>UPI</div>
+                </div>
+                <div class="method-btn" onclick="selectMethod(this)">
+                    <ion-icon name="cash"></ion-icon>
+                    <div>Cash</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="processPayment(this)">Pay ₹425.00</button>
+
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: var(--color-text-muted);">
+                <ion-icon name="lock-closed"></ion-icon> Secure Payment Gateway
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function selectMethod(el) {
+            document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function processPayment(btn) {
+            btn.innerHTML = '<ion-icon name="refresh" class="spin"></ion-icon> Processing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.style.background = 'var(--color-success)';
+                btn.style.boxShadow = 'none';
+                btn.innerHTML = '<ion-icon name="checkmark-circle"></ion-icon> Payment Successful';
+
+                setTimeout(() => {
+                    window.location.href = 'feedback.html';
+                }, 1500);
+            }, 2000);
+        }
+    </script>
+</body>
+
+</html>
