@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Emergency SOS - Fix Ride{% endblock %}
+
+{% block content %}
+<div style="padding: 6rem 1rem; min-height: 90vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.1), transparent 50%), radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.05), transparent 40%);">
+  <div class="card" style="max-width: 500px; width: 100%; border-top: 6px solid #ef4444; padding: 2.5rem; position: relative; overflow: hidden;">
+    
+    <!-- Background Decoration -->
+    <div style="position: absolute; top: -20px; right: -20px; font-size: 8rem; opacity: 0.03; font-weight: 900; pointer-events: none;">SOS</div>
+    
+    <div style="text-align: center; margin-bottom: 2.5rem; position: relative;">
+      <div class="sos-icon-pulse">🆘</div>
+      <h1 style="font-family: 'Poppins', sans-serif; font-size: 2.25rem; font-weight: 800; color: #b91c1c; margin-top: 1rem;">Emergency Help</h1>
+      <p style="color: var(--text-muted); margin-top: 0.75rem; font-weight: 500; font-size: 1rem; line-height: 1.5;">
+        Get roadside assistance instantly.<br>
+        <strong>No registration required.</strong>
+      </p>
+    </div>
+
+    <form id="sosForm" onsubmit="handleSOS(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div class="form-group">
+        <label class="form-label" style="font-weight: 700; color: var(--text);">📍 Your Current Location</label>
+        <div style="display: flex; gap: 0.75rem;">
+          <input type="text" id="sosAddress" class="form-control" placeholder="Detecting address..." readonly style="flex: 1; background: var(--bg); border: 1px solid var(--border);">
+          <button type="button" class="btn btn-secondary" id="sosGpsBtn" onclick="detectSOSLocation()" style="min-width: 80px; font-weight: 700;">📍 GPS</button>
+        </div>
+        <input type="hidden" id="sosLat">
+        <input type="hidden" id="sosLng">
+        <div id="sosLocStatus" style="font-size: 0.8rem; margin-top: 0.5rem; font-weight: 700; transition: all 0.3s; height: 1.2rem;"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" style="font-weight: 700; color: var(--text);">🆘 Service Needed</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <label style="cursor: pointer;">
+            <input type="radio" name="service_type" value="mechanic" checked style="display: none;" onchange="updateServiceBadge()">
+            <div class="service-option" id="opt-mechanic">
+              <span>🔧</span> Mechanic
+            </div>
+          </label>
+          <label style="cursor: pointer;">
+            <input type="radio" name="service_type" value="tow" style="display: none;" onchange="updateServiceBadge()">
+            <div class="service-option" id="opt-tow">
+              <span>🚛</span> Tow Driver
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" style="font-weight: 700; color: var(--text);">🚗 Vehicle Type</label>
+        <select id="sosVehicle" class="form-control" required style="background: var(--bg); border: 1px solid var(--border);">
+          <option value="car">Car</option>
+          <option value="bike">Bike/Motorcycle</option>
+          <option value="truck">Truck</option>
+          <option value="auto">Auto Rickshaw</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" style="font-weight: 700; color: var(--text);">🔧 What's the problem?</label>
+        <textarea id="sosIssue" class="form-control" rows="3" placeholder="Engine won't start, flat tire, stuck on highway, etc." required style="background: var(--bg); border: 1px solid var(--border); resize: none;"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-lg" id="sosSubmitBtn" style="width: 100%; margin-top: 1rem; background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-weight: 800; font-size: 1.2rem; height: 60px; border: none; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); border-radius: 12px; transition: all 0.3s;">
+        🚀 SEND SOS SIGNAL
+      </button>
+    </form>
+    
+    <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; text-align: center;">
+      <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem;">
+        <div style="text-align: center;">
+          <div style="font-weight: 800; color: var(--text);">~2 min</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Assignment</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-weight: 800; color: var(--text);">Verified</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Professionals</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-weight: 800; color: var(--text);">24/7</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Support</div>
+        </div>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">
+        By using SOS, we'll automatically create a secure guest profile for you to track help.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .sos-icon-pulse {
+    font-size: 4.5rem;
+    filter: drop-shadow(0 4px 10px rgba(239,68,68,0.3));
+    animation: sos-pulse-main 1s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    display: inline-block;
+  }
+
+  .service-option {
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 700;
+    transition: all 0.2s;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .service-option span {
+    font-size: 1.5rem;
+  }
+
+  input[type="radio"]:checked + .service-option {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
+
+  @keyframes sos-pulse-main {
+    0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(239,68,68,0.3)); }
+    100% { transform: scale(1.2); filter: drop-shadow(0 0 30px rgba(239,68,68,0.7)); }
+  }
+
+  #sosSubmitBtn:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.1);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+  }
+
+  #sosSubmitBtn:active {
+    transform: translateY(1px);
+  }
+</style>
+
+<script>
+  function updateServiceBadge() {
+    // Styling handled by CSS :checked selector
+  }
+
+  async function detectSOSLocation() {
+    const btn = document.getElementById('sosGpsBtn');
+    const status = document.getElementById('sosLocStatus');
+    const addrInput = document.getElementById('sosAddress');
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ ...';
+    status.style.color = 'var(--info)';
+    status.textContent = '🔍 Locating you...';
+    
+    if (!navigator.geolocation) {
+      showToast('Geolocation not supported', 'error');
+      btn.disabled = false; btn.textContent = '📍 GPS';
+      status.textContent = '';
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      document.getElementById('sosLat').value = latitude;
+      document.getElementById('sosLng').value = longitude;
+      
+      status.style.color = 'var(--success)';
+      status.textContent = '✅ Location Found!';
+      
+      // Reverse geocode with a small delay for smoother UI
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+        if (r.ok) {
+          const data = await r.json();
+          addrInput.value = data.display_name;
+        } else {
+          addrInput.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        }
+      } catch(e) {
+        addrInput.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      }
+      
+      btn.disabled = false; btn.textContent = '📍 GPS';
+    }, (err) => {
+      showToast('Location access denied. Please enable GPS.', 'error');
+      status.style.color = 'var(--danger)';
+      status.textContent = '❌ Location Denied';
+      btn.disabled = false; btn.textContent = '📍 GPS';
+    }, { enableHighAccuracy: true });
+  }
+
+  async function handleSOS(e) {
+    e.preventDefault();
+    const lat = document.getElementById('sosLat').value;
+    const lng = document.getElementById('sosLng').value;
+    const service_type = document.querySelector('input[name="service_type"]:checked').value;
+    
+    if (!lat || !lng) {
+      showToast('We need your location to send help!', 'error');
+      detectSOSLocation();
+      return;
+    }
+
+    const btn = document.getElementById('sosSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = `🛰️ Finding ${service_type === 'tow' ? 'Tow Driver' : 'Mechanic'}...`;
+
+    try {
+      // 1. Check Auth / Guest Login
+      let token = localStorage.getItem('access_token');
+      if (!token) {
+        console.log("No token, creating guest profile...");
+        const gr = await fetch('/api/auth/guest/login/', { 
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        if (gr.ok) {
+          const data = await gr.json();
+          localStorage.setItem('access_token', data.access);
+          localStorage.setItem('refresh_token', data.refresh);
+          localStorage.setItem('user_role', 'customer');
+          localStorage.setItem('user_name', data.user.username);
+          token = data.access;
+        } else {
+          throw new Error('Could not initialize emergency account.');
+        }
+      }
+
+      // 2. Create SOS Booking
+      const payload = {
+        vehicle_type: document.getElementById('sosVehicle').value,
+        issue_description: document.getElementById('sosIssue').value,
+        customer_lat: parseFloat(lat),
+        customer_lng: parseFloat(lng),
+        customer_address: document.getElementById('sosAddress').value,
+        service_type: service_type
+      };
+
+      const br = await fetch('/api/bookings/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (br.ok) {
+        const bdata = await br.json();
+        localStorage.setItem('active_booking_id', bdata.booking.id);
+        showToast('🆘 SOS BROADCASTED! We are finding a mechanic.', 'success');
+        
+        // Final transition
+        btn.textContent = '✅ Help is coming!';
+        btn.style.background = 'var(--success)';
+        
+        setTimeout(() => { 
+          window.location.href = '/customer/dashboard/'; 
+        }, 1800);
+      } else {
+        const err = await br.json();
+        showToast(err.error || 'Request failed. Please try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = '🚀 RETRY SOS SIGNAL';
+      }
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'System error. Try reloading.', 'error');
+      btn.disabled = false;
+      btn.textContent = '🚀 RETRY SOS SIGNAL';
+    }
+  }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Detect location automatically for maximum speed
+    setTimeout(detectSOSLocation, 500);
+  });
+</script>
+{% endblock %}

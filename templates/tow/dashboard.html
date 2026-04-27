@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Tow Dashboard - Fix Ride{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Tow Operator Menu</div>
+    <button class="sidebar-item active" onclick="showSection('requests')" id="nav-requests">
+      <span class="icon">📥</span> Incoming Requests
+    </button>
+    <button class="sidebar-item" onclick="showSection('active')" id="nav-active">
+      <span class="icon">🚛</span> Active Job
+    </button>
+    <button class="sidebar-item" onclick="showSection('history')" id="nav-history">
+      <span class="icon">📋</span> Job History
+    </button>
+    <button class="sidebar-item" onclick="showSection('earnings')" id="nav-earnings">
+      <span class="icon">💰</span> Earnings
+    </button>
+    <button class="sidebar-item" onclick="showSection('chat')" id="nav-chat">
+      <span class="icon">💬</span> Messages
+    </button>
+    <button class="sidebar-item" onclick="showSection('profile')" id="nav-profile">
+      <span class="icon">👤</span> My Profile
+    </button>
+    <div class="sidebar-section-label">Account</div>
+    <button class="sidebar-item" onclick="logout()">
+      <span class="icon">🚪</span> Logout
+    </button>
+  </aside>
+
+  <main class="dashboard-main">
+    <div class="page-header d-flex justify-between align-center">
+      <div>
+        <div class="page-title" id="towWelcome">🚛 Tow Operator Dashboard</div>
+        <div class="page-subtitle" id="towSubtitle">Manage your tow jobs and availability</div>
+      </div>
+      <!-- Availability toggle -->
+      <div class="card" style="padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;">
+        <span style="font-weight:600;font-size:0.9rem;">Status:</span>
+        <span id="availabilityBadge" class="badge badge-offline">Offline</span>
+        <button class="btn btn-sm" id="availabilityBtn" onclick="toggleAvailability()" style="background:var(--success);color:white;">Go Online</button>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid-4 mb-3">
+      <div class="stat-card">
+        <div class="stat-icon orange">📋</div>
+        <div>
+          <div class="stat-value" id="statTotalJobs">0</div>
+          <div class="stat-label">Total Tows</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">💰</div>
+        <div>
+          <div class="stat-value" id="statEarnings">₹0</div>
+          <div class="stat-label">Total Earnings</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">⏳</div>
+        <div>
+          <div class="stat-value" id="statPending">0</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">✅</div>
+        <div>
+          <div class="stat-value" id="statCompleted">0</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Incoming Requests Section ── -->
+    <div class="section-panel active" id="section-requests">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📥 Incoming Requests</div>
+          <button class="btn btn-primary btn-sm" onclick="loadTowBookings()">🔄 Refresh</button>
+        </div>
+        <div id="requestsList" style="display:flex;flex-direction:column;gap:1rem;margin-top:1rem;">
+          <p style="color:var(--text-muted);text-align:center;padding:2rem;">No pending requests right now.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Active Job Section ── -->
+    <div class="section-panel" id="section-active">
+      <div id="towMap" style="height:350px; border-radius:15px; margin-bottom:1.5rem; display:none;"></div>
+      <div id="activeJobContent">
+        <div class="card" style="text-align:center;padding:3rem;">
+          <div style="font-size:3rem;margin-bottom:1rem;">⚡</div>
+          <p style="color:var(--text-muted);">No active job. Accept a request to see it here.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Job History Section ── -->
+    <div class="section-panel" id="section-history">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Job History</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Vehicle</th>
+                <th>Status</th>
+                <th>Earnings</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <tr>
+                <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">No history yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Earnings Section ── -->
+    <div class="section-panel" id="section-earnings">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title mb-2">📈 Summary</div>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div style="display:flex;justify-content:space-between;padding:1rem;background:var(--input-bg);border-radius:12px;">
+              <span>Total Earnings</span>
+              <span class="text-primary fw-bold" id="earningsTotal">₹0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:1rem;background:var(--input-bg);border-radius:12px;">
+              <span>Total Jobs Completed</span>
+              <span class="fw-bold" id="earningsJobs">0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:1rem;background:var(--input-bg);border-radius:12px;">
+              <span>Avg. Per Job</span>
+              <span class="text-success fw-bold" id="earningsAvg">₹0</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title mb-2">📅 This Month</div>
+          <div style="text-align:center;padding:3rem;color:var(--text-muted);">
+            <div style="font-size:2.5rem;font-weight:800;color:var(--primary);" id="monthEarnings">₹0</div>
+            <div style="margin-top:0.5rem;">Earned this month</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages (Messenger UI) -->
+    <div id="section-chat" class="section-panel">
+      <div class="grid-2 messenger-layout" style="gap:1rem; grid-template-columns: 300px 1fr; align-items:start;">
+        <!-- Chat List Sidebar -->
+        <div class="card" style="padding:0; overflow:hidden; display:flex; flex-direction:column; height:600px;">
+          <div class="card-header" style="border-bottom:1px solid var(--border);">
+            <div class="card-title">💬 Conversations</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadChatList()">🔄</button>
+          </div>
+          <div id="chatList" style="flex:1; overflow-y:auto;">
+            <div style="text-align:center;color:var(--text-muted);padding:2rem;">Loading chats...</div>
+          </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="card" style="padding:0; display:flex; flex-direction:column; height:600px;">
+          <div class="card-header" style="border-bottom:1px solid var(--border);">
+            <div class="card-title" id="chatActiveHeader">Select a conversation</div>
+            <span id="chatActiveStatus" style="font-size:0.8rem;color:var(--text-muted);"></span>
+          </div>
+          <div class="chat-container" style="flex:1; display:flex; flex-direction:column; background:var(--bg); border-radius:0;">
+            <div class="chat-messages" id="chatMessages" style="flex:1; padding:1.5rem; overflow-y:auto; background:var(--bg);">
+              <div style="text-align:center;color:var(--text-muted);padding:2rem;height:100%;display:flex;align-items:center;justify-content:center;">
+                Select a chat to start messaging.
+              </div>
+            </div>
+            <div class="chat-input-row" style="padding:1rem; border-top:1px solid var(--border); border-radius:0;">
+              <input class="chat-input" id="chatInput" placeholder="Type a message..." disabled
+                onkeypress="if(event.key==='Enter')sendMessage()">
+              <button class="btn btn-primary btn-sm" id="chatSendBtn" disabled onclick="sendMessage()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Profile Section ── -->
+    <div class="section-panel" id="section-profile">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👤 Tow Operator Profile</div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="profName" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" id="profUsername" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="profEmail" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" class="form-control" id="profPhone" disabled>
+          </div>
+        </div>
+        <div style="margin-top:1rem;padding:1rem;background:var(--input-bg);border-radius:12px;">
+          <div style="font-weight:600;margin-bottom:0.5rem;color:var(--text-muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Role</div>
+          <span class="badge" style="background:rgba(99,102,241,0.15);color:#818cf8;font-size:0.9rem;padding:6px 14px;border-radius:99px;">🚛 Tow Service Operator</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="{% static 'js/tow.js' %}?v=1.0"></script>
+{% endblock %}

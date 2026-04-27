@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Register - Fix Ride{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card" style="max-width:520px;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem;">🔧</div>
+      <div class="auth-title">Create Account</div>
+      <div class="auth-subtitle">Join Fix Ride today</div>
+    </div>
+
+    <div class="role-tabs" id="roleTabs">
+      <button class="role-tab active" onclick="selectRole('customer')" id="tabCustomer">🚗 Customer</button>
+      <button class="role-tab" onclick="selectRole('mechanic')" id="tabMechanic">🔧 Mechanic</button>
+      <button class="role-tab" onclick="selectRole('tow')" id="tabTow">🏗️ Tow</button>
+    </div>
+    <input type="hidden" id="selectedRole" value="customer">
+
+    <form id="registerForm" onsubmit="handleRegister(event)">
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">First Name <span style="color:var(--primary);">*</span></label>
+          <input type="text" class="form-control" id="regFirstName" placeholder="Ravi" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-control" id="regLastName" placeholder="Kumar">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username <span style="color:var(--primary);">*</span></label>
+        <input type="text" class="form-control" id="regUsername" placeholder="ravi_kumar" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span style="color:var(--primary);">*</span></label>
+        <input type="email" class="form-control" id="regEmail" placeholder="ravi@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone <span style="color:var(--primary);">*</span></label>
+        <input type="tel" class="form-control" id="regPhone" placeholder="+91 98765 43210" required>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Password <span style="color:var(--primary);">*</span></label>
+          <input type="password" class="form-control" id="regPassword" placeholder="Min 8 chars, 1 Upper, 1 Digit" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password <span style="color:var(--primary);">*</span></label>
+          <input type="password" class="form-control" id="regPassword2" placeholder="Repeat password" required>
+        </div>
+      </div>
+
+      <!-- Mechanic extra fields -->
+      <div id="mechanicFields" class="hidden">
+        <div class="form-group">
+          <label class="form-label">Skills (comma separated)</label>
+          <input type="text" class="form-control" id="regSkills" placeholder="Engine, Tyres, AC Repair, Battery">
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Experience (years)</label>
+            <input type="number" class="form-control" id="regExperience" min="0" max="50" value="2">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Service Radius (km)</label>
+            <input type="number" class="form-control" id="regRadius" min="1" max="50" value="15">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="registerBtn">
+        Create Account →
+      </button>
+    </form>
+    <div style="text-align:center;margin-top:1.5rem;color:#64748b;font-size:0.875rem;">
+      Already have an account? <a href="/auth/login/" style="color:var(--primary);font-weight:600;">Login</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function selectRole(role) {
+    document.getElementById('selectedRole').value = role;
+    document.getElementById('tabCustomer').classList.toggle('active', role === 'customer');
+    document.getElementById('tabMechanic').classList.toggle('active', role === 'mechanic');
+    document.getElementById('tabTow').classList.toggle('active', role === 'tow');
+    document.getElementById('mechanicFields').classList.toggle('hidden', role !== 'mechanic');
+  }
+
+  // Pre-select from URL param
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('role') === 'mechanic') selectRole('mechanic');
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    const btn = document.getElementById('registerBtn');
+    const p1 = document.getElementById('regPassword').value;
+    const p2 = document.getElementById('regPassword2').value;
+    if (p1 !== p2) { showToast('Passwords do not match', 'error'); return; }
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+    const role = document.getElementById('selectedRole').value;
+    const payload = {
+      username: document.getElementById('regUsername').value,
+      email: document.getElementById('regEmail').value,
+      first_name: document.getElementById('regFirstName').value,
+      last_name: document.getElementById('regLastName').value,
+      phone: document.getElementById('regPhone').value,
+      password: p1,
+      password2: p2,
+      role: role
+    };
+    try {
+      const r = await fetch('/api/auth/register/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await r.json();
+      if (r.ok) {
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        localStorage.setItem('user_role', data.user.role);
+        localStorage.setItem('user_name', data.user.username);
+
+        // If mechanic, create profile
+        if (role === 'mechanic') {
+          await fetch('/api/mechanics/profile/', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.access },
+            body: JSON.stringify({
+              skills: document.getElementById('regSkills').value || 'General Repair',
+              experience_years: document.getElementById('regExperience').value || 2,
+              service_radius_km: document.getElementById('regRadius').value || 15
+            })
+          });
+        }
+        showToast('Account created! Welcome to Fix Ride 🎉', 'success');
+        setTimeout(() => {
+          if (role === 'mechanic') window.location.href = '/mechanic/dashboard/';
+          else if (role === 'tow') window.location.href = '/tow/dashboard/';
+          else window.location.href = '/customer/dashboard/';
+        }, 1000);
+      } else {
+        const errors = Object.values(data).flat().join(' ');
+        showToast(errors || 'Registration failed', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Create Account →';
+      }
+    } catch (err) {
+      showToast('Network error. Please try again.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Create Account →';
+    }
+  }
+</script>
+{% endblock %}

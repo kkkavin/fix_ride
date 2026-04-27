@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login - Fix Ride{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div style="text-align:center;margin-bottom:1.75rem;">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem;">🔧</div>
+      <div class="auth-title">Welcome Back</div>
+      <div class="auth-subtitle">Login to your Fix Ride account</div>
+    </div>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-control" id="loginUsername" placeholder="Enter username" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginBtn">
+        Login →
+      </button>
+    </form>
+    <div style="text-align:center;margin-top:1.5rem;color:#64748b;font-size:0.875rem;">
+      Don't have an account? <a href="/auth/register/" style="color:var(--primary);font-weight:600;">Register</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.textContent = 'Logging in...';
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    try {
+      const r = await fetch('/api/auth/login/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await r.json();
+      if (r.ok) {
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        // Get user info
+        const me = await fetch('/api/auth/me/', { headers: { 'Authorization': 'Bearer ' + data.access } });
+        const user = await me.json();
+        localStorage.setItem('user_role', user.role);
+        localStorage.setItem('user_name', user.username);
+        showToast('Welcome back, ' + user.username + '!', 'success');
+        setTimeout(() => {
+          if (user.role === 'mechanic') window.location.href = '/mechanic/dashboard/';
+          else if (user.role === 'admin') window.location.href = '/admin-panel/';
+          else if (user.role === 'tow') window.location.href = '/tow/dashboard/';
+          else window.location.href = '/customer/dashboard/';
+        }, 800);
+      } else {
+        showToast(data.detail || 'Invalid credentials', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Login →';
+      }
+    } catch (err) {
+      showToast('Network error. Please try again.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Login →';
+    }
+  }
+  // Auto-redirect if already logged in
+  const tok = localStorage.getItem('access_token');
+  const role = localStorage.getItem('user_role');
+  if (tok && role) {
+    if (role === 'mechanic') window.location.href = '/mechanic/dashboard/';
+    else if (role === 'admin') window.location.href = '/admin-panel/';
+    else if (role === 'tow') window.location.href = '/tow/dashboard/';
+    else window.location.href = '/customer/dashboard/';
+  }
+</script>
+{% endblock %}

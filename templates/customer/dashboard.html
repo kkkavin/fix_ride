@@ -1,0 +1,333 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Customer Dashboard - Fix Ride{% endblock %}
+{% block extra_css %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+  .section-panel { display: none; }
+  .section-panel.active { display: block; }
+  .service-toggle { display:flex; gap:0.75rem; margin-bottom:1.5rem; }
+  .service-toggle-btn {
+    flex:1; padding:0.875rem 1rem; border:2px solid var(--border);
+    border-radius:14px; background:var(--input-bg); color:var(--text);
+    cursor:pointer; font-size:0.95rem; font-weight:600; transition:all 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:0.5rem;
+  }
+  .service-toggle-btn.active {
+    border-color:var(--primary); background:rgba(249,115,22,0.1); color:var(--primary);
+  }
+  .provider-modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+    z-index:10000; align-items:center; justify-content:center; padding:1rem;
+  }
+  .provider-modal-overlay.visible { display:flex; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Customer Menu</div>
+    <button class="sidebar-item" onclick="showSection('book')" id="nav-book">
+      <span class="icon">🔧</span> Book Service
+    </button>
+    <button class="sidebar-item" onclick="showSection('status')" id="nav-status">
+      <span class="icon">📡</span> Active Booking
+    </button>
+    <button class="sidebar-item" onclick="showSection('bookings')" id="nav-bookings">
+      <span class="icon">📋</span> My Bookings
+    </button>
+    <button class="sidebar-item" onclick="showSection('nearby')" id="nav-nearby">
+      <span class="icon">📍</span> Nearby Providers
+    </button>
+    <button class="sidebar-item" onclick="showSection('chat')" id="nav-chat">
+      <span class="icon">💬</span> Chat
+    </button>
+    <button class="sidebar-item" onclick="showSection('profile')" id="nav-profile">
+      <span class="icon">👤</span> Profile
+    </button>
+    <div class="sidebar-section-label">Account</div>
+    <button class="sidebar-item" onclick="logout()">
+      <span class="icon">🚪</span> Logout
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <div class="page-header d-flex justify-between align-center">
+      <div>
+        <div class="page-title" id="welcomeTitle">👋 Welcome back!</div>
+        <div class="page-subtitle">What do you need help with today?</div>
+        <span id="activeBookingBadge" class="badge badge-accepted hidden" style="display:inline-block; margin-top:0.5rem; cursor:pointer;" onclick="showSection('status')">● Active Booking (Click to view)</span>
+      </div>
+    </div>
+
+    <!-- Book Service Section -->
+    <div id="section-book" class="section-panel active">
+      <div style="max-width: 800px; margin: 0 auto;">
+        <!-- Booking Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🛠️ Book a Service</div>
+          </div>
+
+          <!-- Service type toggle -->
+          <div class="service-toggle">
+            <button class="service-toggle-btn active" id="btnMechanic" onclick="selectServiceType('mechanic')">
+              🔧 Mechanic
+            </button>
+            <button class="service-toggle-btn" id="btnTow" onclick="selectServiceType('tow')">
+              🚛 Tow Service
+            </button>
+          </div>
+
+          <form id="bookingForm" onsubmit="submitBooking(event)">
+            <div class="form-group">
+              <label class="form-label">Vehicle Type</label>
+              <select class="form-control" id="vehicleType" required>
+                <option value="">Select vehicle...</option>
+                <option value="car">🚗 Car</option>
+                <option value="bike">🏍️ Bike / Motorcycle</option>
+                <option value="truck">🚛 Truck</option>
+                <option value="auto">🛺 Auto Rickshaw</option>
+                <option value="other">🚐 Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Issue Description</label>
+              <textarea class="form-control" id="issueDesc" rows="3"
+                placeholder="Describe what's wrong with your vehicle..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Your Location</label>
+              <div class="d-flex gap-1" style="margin-bottom:0.5rem;">
+                <input type="text" class="form-control" id="customerAddress" placeholder="Enter address or use GPS">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="detectLocation()" id="gpsBtn">📍 GPS</button>
+              </div>
+              <input type="hidden" id="customerLat" value="">
+              <input type="hidden" id="customerLng" value="">
+              <div id="locationStatus" style="font-size:0.8rem;color:var(--text-muted);"></div>
+            </div>
+            <div id="map" style="margin-bottom:1rem;height:200px;border-radius:12px;overflow:hidden;"></div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="bookBtn">
+              🔧 Find Nearest Mechanic
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Booking Section -->
+    <div id="section-status" class="section-panel">
+      <div style="max-width: 800px; margin: 0 auto;">
+        <div class="card mb-2" id="activeBookingCard">
+          <div class="card-header">
+            <div class="card-title">📡 Active Booking Tracker</div>
+            <span id="bookingStatusBadge" class="badge badge-pending">No Booking</span>
+          </div>
+          <div id="activeBookingInfo" style="color:var(--text-muted);text-align:center;padding:3rem 0;">
+            <div style="font-size:3.5rem;margin-bottom:1rem;">🔍</div>
+            <p style="font-size:1.1rem;">No active booking yet.<br>Go to <strong>Book Service</strong> to find a provider!</p>
+          </div>
+          <!-- Status Timeline -->
+          <div class="status-timeline" id="statusTimeline" style="display:none; padding:1.5rem 0;">
+            <div class="timeline-step" id="step-pending"><div class="timeline-dot">⏳</div><div class="timeline-label">Pending</div></div>
+            <div class="timeline-step" id="step-accepted"><div class="timeline-dot">✅</div><div class="timeline-label">Accepted</div></div>
+            <div class="timeline-step" id="step-en_route"><div class="timeline-dot">🚗</div><div class="timeline-label">En Route</div></div>
+            <div class="timeline-step" id="step-arrived"><div class="timeline-dot">📍</div><div class="timeline-label">Arrived</div></div>
+            <div class="timeline-step" id="step-in_progress"><div class="timeline-dot">🔧</div><div class="timeline-label">Working</div></div>
+            <div class="timeline-step" id="step-completed"><div class="timeline-dot">🎉</div><div class="timeline-label">Completed</div></div>
+          </div>
+          <div id="statusMap" style="height:350px; border-radius:12px; margin: 0 1.5rem 1.5rem; display:none; overflow:hidden;"></div>
+          <div id="cancelBookingArea" style="padding:1.5rem; border-top:1px solid var(--border); text-align:center;" class="hidden">
+            <p style="margin-bottom:1rem; font-size:0.85rem; color:var(--text-muted);">Change of plans? You can cancel before the provider arrives.</p>
+            <button class="btn btn-secondary btn-sm" onclick="cancelBooking()">🔴 Cancel Booking</button>
+          </div>
+        </div>
+
+        <!-- Provider info card -->
+        <div class="card hidden" id="assignedMechanicCard">
+          <div class="card-title mb-2">🔧 Your Assigned Provider</div>
+          <div class="mechanic-card" style="border:none;padding:0;">
+            <div class="mechanic-avatar" id="mechAvatar">🔧</div>
+            <div class="mechanic-info">
+              <div class="mechanic-name" id="mechName">-</div>
+              <div class="mechanic-skills" id="mechSkills">-</div>
+              <div class="mechanic-distance" id="mechDist">-</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.75rem;margin-top:1.5rem;flex-wrap:wrap;">
+            <button class="btn btn-danger btn-sm" style="flex:1; min-width:80px;" onclick="cancelBooking()">Cancel</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1; min-width:80px;" onclick="showSection('chat')">💬 Chat</button>
+            <button class="btn btn-primary btn-sm hidden" id="rateBtn" style="flex:2; min-width:140px;" onclick="handleRatingClick()">⭐ Rate Service</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Bookings -->
+    <div id="section-bookings" class="section-panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 My Bookings</div>
+          <button class="btn btn-secondary btn-sm" onclick="loadBookings()">🔄 Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table id="bookingsTable">
+            <thead>
+              <tr>
+                <th>#</th><th>Vehicle</th><th>Issue</th><th>Status</th><th>Provider</th><th>Date</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsBody">
+              <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nearby Providers -->
+    <div id="section-nearby" class="section-panel">
+      <div class="card">
+        <div class="card-header">
+          <div id="nearbyLabel" class="card-title">📍 Nearby Providers</div>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-secondary btn-sm" id="nearbyBtnMech" onclick="bookingServiceType='mechanic';selectServiceType('mechanic');loadNearby()">🔧 Mechanics</button>
+            <button class="btn btn-secondary btn-sm" id="nearbyBtnTow" onclick="bookingServiceType='tow';selectServiceType('tow');loadNearby()">🚛 Tow</button>
+            <button class="btn btn-primary btn-sm" onclick="loadNearby()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div id="nearbyList"
+          style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:1rem;">
+          <p style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:2rem;">Detect your location (GPS on Book page) then click Refresh.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div id="section-chat" class="section-panel">
+      <div class="grid-2 messenger-layout" style="gap:1rem; grid-template-columns: 300px 1fr; align-items:start;">
+        <!-- Chat List Sidebar -->
+        <div class="card" style="padding:0; overflow:hidden; display:flex; flex-direction:column; height:600px;">
+          <div class="card-header" style="border-bottom:1px solid var(--border);">
+            <div class="card-title">💬 Conversations</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadChatList()">🔄</button>
+          </div>
+          <div id="chatList" style="flex:1; overflow-y:auto;">
+            <div style="text-align:center;color:var(--text-muted);padding:2rem;">Loading chats...</div>
+          </div>
+        </div>
+
+        <!-- Chat Main Area -->
+        <div class="card" style="padding:0; display:flex; flex-direction:column; height:600px;">
+          <div class="card-header" style="border-bottom:1px solid var(--border);">
+            <div class="card-title" id="chatActiveHeader">Select a conversation</div>
+            <span id="chatActiveStatus" style="font-size:0.8rem;color:var(--text-muted);"></span>
+          </div>
+          <div class="chat-container" style="flex:1; display:flex; flex-direction:column; background:var(--bg); border-radius:0;">
+            <div class="chat-messages" id="chatMessages" style="flex:1; padding:1.5rem; overflow-y:auto; background:var(--bg);">
+              <div style="text-align:center;color:var(--text-muted);padding:2rem;height:100%;display:flex;align-items:center;justify-content:center;">
+                Select a chat from the left to start messaging.
+              </div>
+            </div>
+            <div class="chat-input-row" style="padding:1rem; border-top:1px solid var(--border); border-radius:0;">
+              <input class="chat-input" id="chatInput" placeholder="Type a message..." disabled
+                onkeypress="if(event.key==='Enter')sendMessage()">
+              <button class="btn btn-primary btn-sm" id="chatSendBtn" disabled onclick="sendMessage()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Profile -->
+    <div id="section-profile" class="section-panel">
+      <div class="card" style="max-width:500px;">
+        <div class="card-header">
+          <div class="card-title">👤 My Profile</div>
+          <button class="btn btn-primary btn-sm" onclick="saveProfile()">Save Changes</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" class="form-control" id="profileFirst">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-control" id="profileLast">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="profileEmail">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="tel" class="form-control" id="profilePhone">
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal"
+  style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; align-items:center; justify-content:center;"
+  class="hidden">
+  <div class="card" style="max-width:400px; width:90%; z-index:10001; text-align:center;">
+    <div class="card-title mb-2">💳 Payment Required</div>
+    <div style="font-size:3.5rem; margin-bottom:0.5rem;">💸</div>
+    <div style="color:var(--text-muted); font-size:0.9rem; margin-bottom:0.25rem;">Total Service Charge</div>
+    <div style="font-size:2.5rem; font-weight:800; color:var(--primary); margin-bottom:1.5rem;" id="paymentAmount">₹0</div>
+    
+    <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.5rem;">
+      <button class="btn btn-secondary btn-block" style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border:1px solid #3399cc;" onclick="processPayment('razorpay')">
+        <span style="display:flex; align-items:center; gap:0.5rem; font-weight:600;"><span style="font-size:1.2rem;">🔹</span> Razorpay</span>
+        <span style="color:var(--text-muted);">&rarr;</span>
+      </button>
+      <button class="btn btn-secondary btn-block" style="display:flex; justify-content:space-between; align-items:center; padding:1rem;" onclick="processPayment('cash')">
+        <span style="display:flex; align-items:center; gap:0.5rem; font-weight:600;"><span style="font-size:1.2rem;">💵</span> Cash</span>
+        <span style="color:var(--text-muted);">&rarr;</span>
+      </button>
+    </div>
+    <div style="font-size:0.8rem; color:var(--text-muted);">Secure payment gateway</div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div id="reviewModal"
+  style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; align-items:center; justify-content:center;"
+  class="hidden">
+  <div class="card" style="max-width:400px; width:90%; z-index:10001;">
+    <div class="card-header">
+      <div class="card-title">⭐ Rate Your Provider</div>
+      <button onclick="closeReviewModal()"
+        style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);">✕</button>
+    </div>
+    <div style="display:flex; gap:0.5rem; justify-content:center; margin-bottom:1rem;" id="starRating">
+      {% for i in "12345" %}
+      <button class="star-btn" data-val="{{ forloop.counter }}"
+        onclick="selectStar('{{ forloop.counter }}')"
+        style="font-size:2rem; background:none; border:none; cursor:pointer; color:#d1d5db; transition:color 0.15s;">★</button>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      <textarea class="form-control" id="reviewComment" placeholder="Tell us about your experience..." rows="3"></textarea>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="submitReview()">Submit Review</button>
+  </div>
+</div>
+
+<!-- Provider Profile Modal -->
+<div id="providerProfileModal" class="hidden"
+  style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;align-items:center;justify-content:center;padding:1rem;">
+  <div class="card" style="max-width:480px;width:100%;max-height:90vh;overflow-y:auto;position:relative;">
+    <button onclick="closeProviderModal()"
+      style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);">✕</button>
+    <div id="providerModalContent"></div>
+  </div>
+</div>
+
+<script src="{% static 'js/customer.js' %}?v=3.0"></script>
+{% endblock %}

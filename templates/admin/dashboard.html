@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Admin Dashboard - Fix Ride{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Admin Panel</div>
+    <button class="sidebar-item active" onclick="showSection('overview')" id="nav-overview">
+      <span class="icon">📊</span> Overview
+    </button>
+    <button class="sidebar-item" onclick="showSection('bookings')" id="nav-bookings">
+      <span class="icon">📋</span> All Bookings
+    </button>
+    <button class="sidebar-item" onclick="showSection('mechanics')" id="nav-mechanics">
+      <span class="icon">🔧</span> Mechanics
+    </button>
+    <button class="sidebar-item" onclick="showSection('users')" id="nav-users">
+      <span class="icon">👥</span> Users
+    </button>
+    <div class="sidebar-section-label">Account</div>
+    <button class="sidebar-item" onclick="logout()">
+      <span class="icon">🚪</span> Logout
+    </button>
+  </aside>
+
+  <main class="dashboard-main">
+    <div class="page-header">
+      <div class="page-title">⚙️ Admin Dashboard</div>
+      <div class="page-subtitle">Fix Ride Platform Analytics & Management</div>
+    </div>
+
+    <!-- Overview Section -->
+    <div id="section-overview" class="section-panel active">
+      <div class="grid-4 mb-3" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div>
+            <div class="stat-value" id="sTotalUsers">-</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">📋</div>
+          <div>
+            <div class="stat-value" id="sTotalBookings">-</div>
+            <div class="stat-label">Total Bookings</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div>
+            <div class="stat-value" id="sCompleted">-</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">💰</div>
+          <div>
+            <div class="stat-value" id="sRevenue">-</div>
+            <div class="stat-label">Revenue (₹)</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="stat-card">
+          <div class="stat-icon orange">⏳</div>
+          <div>
+            <div class="stat-value" id="sActive">-</div>
+            <div class="stat-label">Active Bookings</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">⚠️</div>
+          <div>
+            <div class="stat-value" id="sPending">-</div>
+            <div class="stat-label">Pending Mechanic Grants</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-2" style="margin-top:1.5rem;">
+        <div class="card-header">
+          <div class="card-title">📋 Recent Bookings</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Mechanic</th>
+                <th>Vehicle</th>
+                <th>Issue</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="recentBookingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bookings Section -->
+    <div id="section-bookings" class="section-panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 All Bookings</div>
+          <button class="btn btn-secondary btn-sm" onclick="loadAdminBookings()">🔄 Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Mechanic</th>
+                <th>Vehicle</th>
+                <th>Status</th>
+                <th>Distance</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="adminBookingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mechanics Section -->
+    <div id="section-mechanics" class="section-panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔧 Mechanic Management</div>
+          <button class="btn btn-secondary btn-sm" onclick="loadAdminMechanics()">🔄 Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mechanic</th>
+                <th>Skills</th>
+                <th>Exp</th>
+                <th>Status</th>
+                <th>Granted</th>
+                <th>Jobs</th>
+                <th>Earnings</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="mechanicsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Section -->
+    <div id="section-users" class="section-panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👥 User Management</div>
+          <button class="btn btn-secondary btn-sm" onclick="loadAdminUsers()">🔄 Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="{% static 'js/admin.js' %}?v=1.1"></script>
+{% endblock %}

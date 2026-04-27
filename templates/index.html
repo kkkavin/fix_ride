@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fix Ride - On-Demand Mechanic Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cta-section {
+    position: relative;
+    padding: 8rem 2rem;
+    background: url("{% static 'img/cta_bg.jpg' %}") no-repeat center center;
+    background-size: cover;
+    background-attachment: fixed;
+    text-align: center;
+  }
+
+  /* Glossy Red SOS Orb */
+  .sos-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: relative;
+    padding: 2rem;
+  }
+
+  .sos-orb {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle at 50% 120%, #8b0000, #ff0000 80%, #ff5f5f 100%);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 
+      0 10px 30px rgba(0, 0, 0, 0.3),
+      0 0 40px rgba(239, 68, 68, 0.4),
+      inset 0 -10px 40px rgba(0, 0, 0, 0.4),
+      inset 0 10px 40px rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+    overflow: hidden;
+    animation: sos-float 4s ease-in-out infinite;
+  }
+
+  /* Glassy Reflection Layer */
+  .sos-orb::after {
+    content: '';
+    position: absolute;
+    top: 5%;
+    left: 15%;
+    width: 70%;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 50% / 100% 100% 0 0;
+    pointer-events: none;
+  }
+
+  /* Bottom Glow */
+  .sos-orb::before {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: 50%;
+    width: 120%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .sos-orb:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 
+      0 15px 40px rgba(0, 0, 0, 0.4),
+      0 0 60px rgba(239, 68, 68, 0.6);
+  }
+
+  .sos-orb:active {
+    transform: scale(0.95);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  }
+
+  .sos-label-orb {
+    font-family: 'Poppins', sans-serif;
+    font-size: 5rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -2px;
+    z-index: 20;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    /* Removing icon since the image has just text */
+  }
+
+  /* Animated Outer Pulse Ring */
+  .sos-outer-pulse {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    border: 2px solid rgba(239, 68, 68, 0.3);
+    animation: sos-pulse-ring 2.5s infinite;
+    pointer-events: none;
+  }
+
+  @keyframes sos-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  @keyframes sos-pulse-ring {
+    0% { transform: scale(0.85); opacity: 0.8; }
+    100% { transform: scale(1.3); opacity: 0; }
+  }
+
+  @media (max-width: 768px) {
+    .sos-orb { width: 180px; height: 180px; }
+    .sos-label-orb { font-size: 4rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+<!-- Unique Professional Auth Bar -->
+<div class="elegant-auth-bar">
+  <div class="auth-bar-content">
+    <div class="auth-bar-label">Already have an account?</div>
+    <div class="auth-bar-buttons">
+      <a href="/auth/login/" class="btn btn-secondary btn-sm">Sign In</a>
+      <a href="/auth/register/" class="btn btn-primary btn-sm">Create New Account</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .elegant-auth-bar {
+    position: relative;
+    top: 0px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 2rem;
+    z-index: 99;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 64px; /* Offset for navbar */
+  }
+  .auth-bar-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    max-width: 1200px;
+    width: 100%;
+    justify-content: center;
+  }
+  .auth-bar-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .auth-bar-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+  @media (max-width: 768px) {
+    .elegant-auth-bar { padding: 1rem; }
+    .auth-bar-content { flex-direction: column; gap: 0.75rem; }
+    .auth-bar-label { display: none; }
+    .auth-bar-buttons { width: 100%; justify-content: center; }
+    .auth-bar-buttons .btn { flex: 1; }
+  }
+</style>
+{% endif %}
+
+<!-- Hero Section -->
+<section class="hero" id="home" style="padding-top: 2rem;">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-badge">
+        <span>🚀</span> Mechanic & Tow Booking Platform
+      </div>
+      <h1 class="hero-title">
+        Stranded on the Road?<br>
+        <span class="highlight">Help is On the Way.</span>
+      </h1>
+      <p class="hero-subtitle">
+        Connect with verified mechanics near you in under 2 minutes.
+        Real-time tracking, transparent pricing, and trusted professionals — all in one platform.
+      </p>
+      <div class="hero-actions">
+        <a href="/auth/register/?role=customer" class="btn btn-primary btn-lg">
+          🔧 Book a Mechanic
+        </a>
+        <a href="/auth/register/?role=mechanic" class="btn btn-secondary btn-lg">
+          🛠️ Join as Mechanic
+        </a>
+      </div>
+      <div style="display:flex;gap:2rem;margin-top:2.5rem;">
+        <div>
+          <div style="font-family:'Poppins',sans-serif;font-size:1.75rem;font-weight:800;color:var(--text);">50K+</div>
+          <div style="color:var(--text-muted);font-size:0.85rem;">Happy Customers</div>
+        </div>
+        <div>
+          <div style="font-family:'Poppins',sans-serif;font-size:1.75rem;font-weight:800;color:var(--text);">5K+</div>
+          <div style="color:var(--text-muted);font-size:0.85rem;">Verified Mechanics</div>
+        </div>
+        <div>
+          <div style="font-family:'Poppins',sans-serif;font-size:1.75rem;font-weight:800;color:var(--text);">4.8★</div>
+          <div style="color:var(--text-muted);font-size:0.85rem;">Average Rating</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="sos-container">
+        <div class="sos-outer-pulse"></div>
+        <a href="/sos/" class="sos-orb">
+          <div class="sos-label-orb">SOS</div>
+        </a>
+        <p style="margin-top: 2rem; color: var(--text-muted); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px;">
+          Instant Access · No Registration
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" style="padding:7rem 1.5rem;background:var(--bg);">
+  <div class="grid-2 align-center" style="max-width:1200px;margin:0 auto;gap:3rem;">
+    <div>
+      <div class="mb-3">
+        <div
+          style="color:var(--primary);font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:0.5rem;">
+          Simple Process</div>
+        <h2 style="font-family:'Poppins',sans-serif;font-size:2.25rem;font-weight:800;">How Fix Ride Works</h2>
+        <p style="color:var(--text-muted);margin:0.75rem 0 0;">Get your vehicle fixed in 4 simple steps.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-top:2rem;">
+        <div class="card fade-in" style="padding:1.5rem;">
+          <div style="font-size:2rem;margin-bottom:1rem;">📍</div>
+          <h3 style="font-weight:700;margin-bottom:0.5rem;font-size:1.1rem;">Share Location</h3>
+          <p style="color:var(--text-muted);font-size:0.85rem;">Allow location access.</p>
+        </div>
+        <div class="card fade-in" style="padding:1.5rem;">
+          <div style="font-size:2rem;margin-bottom:1rem;">🚗</div>
+          <h3 style="font-weight:700;margin-bottom:0.5rem;font-size:1.1rem;">Describe Issue</h3>
+          <p style="color:var(--text-muted);font-size:0.85rem;">Tell us what's wrong.</p>
+        </div>
+        <div class="card fade-in" style="padding:1.5rem;">
+          <div style="font-size:2rem;margin-bottom:1rem;">🔍</div>
+          <h3 style="font-weight:700;margin-bottom:0.5rem;font-size:1.1rem;">Matched</h3>
+          <p style="color:var(--text-muted);font-size:0.85rem;">AI finds nearest mechanic.</p>
+        </div>
+        <div class="card fade-in" style="padding:1.5rem;">
+          <div style="font-size:2rem;margin-bottom:1rem;">✅</div>
+          <h3 style="font-weight:700;margin-bottom:0.5rem;font-size:1.1rem;">Solved</h3>
+          <p style="color:var(--text-muted);font-size:0.85rem;">Mechanic fixes it fast.</p>
+        </div>
+      </div>
+    </div>
+    <div class="how-it-works-image" style="position:relative;height:400px;border-radius:24px;overflow:hidden;box-shadow:var(--shadow-lg);">
+      <img src="{% static 'img/how_it_works.jpg' %}" alt="Detailed engine repair"
+        style="width:100%;height:100%;object-fit:cover;">
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (max-width: 768px) {
+    .how-it-works-image { height: 300px !important; }
+    #how-it-works .grid-2 { grid-template-columns: 1fr !important; }
+    #how-it-works { padding: 4rem 1.5rem !important; }
+    #features { padding: 4rem 1.5rem !important; }
+    .cta-section { padding: 5rem 1.5rem !important; }
+  }
+</style>
+
+<!-- Features -->
+<section id="features" style="padding:5rem 2rem;background:var(--input-bg);">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="text-center mb-3">
+      <div
+        style="color:var(--primary);font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:0.5rem;">
+        Features</div>
+      <h2 style="font-family:'Poppins',sans-serif;font-size:2.25rem;font-weight:800;">Why Choose Fix Ride?</h2>
+    </div>
+    <div class="grid-3" style="margin-top:3rem;">
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:1rem;">🎯</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">Nearest Mechanic Algorithm</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;">Haversine formula calculates real-world distances to
+          assign the closest available mechanic within seconds.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:1rem;">📡</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">Real-Time Tracking</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;">Follow your booking live: Pending → Accepted → En Route →
+          Arrived → Completed status updates.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:1rem;">🔒</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">Verified Mechanics</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;">Every mechanic is manually granted access by our team with ID
+          verification and certification checks.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:1rem;">💬</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">In-App Chat</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;">Communicate directly with your mechanic through our
+          built-in messaging system.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:1rem;">🤖</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">AI Assistant</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;">Rule-based chatbot helps with FAQs, booking assistance,
+          and basic vehicle troubleshooting tips.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:1rem;">⭐</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">Ratings & Reviews</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;">Rate and review your mechanic after each service to
+          maintain quality and accountability.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div style="position:absolute;inset:0;background:linear-gradient(rgba(10,15,30,0.8), rgba(10,15,30,0.9));"></div>
+  <div style="max-width:600px;margin:0 auto;position:relative;z-index:1;">
+    <h2 style="font-family:'Poppins',sans-serif;font-size:2.5rem;font-weight:800;color:white;margin-bottom:1rem;">Ready
+      to Get Started?</h2>
+    <p style="color:#cbd5e1;font-size:1.05rem;margin-bottom:2rem;">Join thousands of customers who trust Fix Ride for
+      all their vehicle repair needs.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="/auth/register/" class="btn btn-primary btn-lg">Book Your First Service</a>
+      <a href="/auth/register/?role=mechanic" class="btn btn-secondary btn-lg"
+        style="color:white;border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);">Join as a Mechanic</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="background:var(--bg-sidebar);color:var(--text-muted);padding:3rem 2rem;text-align:center;">
+  <div
+    style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:0.5rem;">
+    🔧 Fix Ride
+  </div>
+  <p style="font-size:0.85rem;">© 2026 Fix Ride. All rights reserved.</p>
+</footer>
+{% endblock %}

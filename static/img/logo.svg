@@ -1,0 +1,15 @@
+<svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M165.717 84.1755C158.468 76.926 147.234 75.3168 138.566 79.9145L99.646 118.835C102.137 122.955 101.442 128.535 97.4389 132.539C92.5317 137.446 84.5765 137.446 79.6693 132.539C74.7621 127.632 74.7621 119.676 79.6693 114.769C83.6729 110.766 89.2526 110.071 93.3725 112.562L132.293 73.6421C136.891 64.9742 135.282 53.7402 128.032 46.4907C118.232 36.6905 102.344 36.6905 92.5435 46.4907C82.7433 56.2909 82.7433 72.1789 92.5435 81.9791L61.0267 113.496C59.0645 115.458 59.0645 118.639 61.0267 120.601L88.9248 148.499C90.887 150.462 94.0679 150.462 96.0301 148.499L127.547 116.983C137.347 126.783 153.235 126.783 163.035 116.983C172.835 107.182 172.835 91.2942 165.717 84.1755Z" fill="url(#paint0_linear_1_2)"/>
+  <!-- Added abstract gear part to make it more aesthetic -->
+  <path d="M185 105 A 80 80 0 0 1 105 185" fill="none" stroke="url(#paint1_linear_1)" stroke-width="18" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="paint0_linear_1_2" x1="60" y1="35" x2="175" y2="150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F97316"/>
+      <stop offset="1" stop-color="#C2580A"/>
+    </linearGradient>
+    <linearGradient id="paint1_linear_1" x1="185" y1="105" x2="105" y2="185" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+</svg>
