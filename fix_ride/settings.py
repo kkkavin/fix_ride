@@ -2,8 +2,11 @@
 Fix_Ride Django project settings
 """
 import os
+from dotenv import load_dotenv
 from pathlib import Path
 from datetime import timedelta
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -67,8 +70,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'fix_ride_db',
-        'USER': 'root',
-        'PASSWORD': 'Kavin@2005',
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASS"),
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
