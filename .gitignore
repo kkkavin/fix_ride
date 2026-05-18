@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+*.whl
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Environment variables
+.env
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static_root/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Migration files (keep in VCS for team, but ignore machine-specific)
+# Uncomment if you want to ignore migrations:
+# **/migrations/*.py
+# !**/migrations/__init__.py
