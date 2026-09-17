@@ -1,0 +1,6 @@
+{
+  "name": "Fix Ride",
+  "description": "On-demand mechanic and tow booking platform connecting stranded drivers with verified mechanics",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

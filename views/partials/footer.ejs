@@ -1,0 +1,29 @@
+  <!-- Chatbot Widget -->
+  <button class="chatbot-toggle" id="chatbotToggle" title="Chat with Fix Ride Assistant">💬</button>
+  <div class="chatbot-window" id="chatbotWindow">
+    <div class="chatbot-header">
+      <div>
+        <div style="font-size:1rem;">🤖 Fix Ride Assistant</div>
+        <div style="font-size:0.75rem;opacity:0.85;font-weight:400;">Always here to help</div>
+      </div>
+      <button onclick="document.getElementById('chatbotWindow').classList.remove('open')"
+        style="background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;">✕</button>
+    </div>
+    <div class="chatbot-messages" id="chatbotMessages">
+      <div class="chat-bubble received">
+        👋 Hi! I'm your Fix Ride assistant. Type <strong>help</strong> to see what I can do!
+      </div>
+    </div>
+    <div class="chatbot-input-row">
+      <input class="chat-input" id="chatbotInput" placeholder="Ask something..."
+        onkeypress="if(event.key==='Enter')sendChatbotMsg()">
+      <button class="btn btn-primary btn-sm" onclick="sendChatbotMsg()">Send</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/static/js/main.js?v=2.0"></script>
+  <%- typeof extraJs !== 'undefined' ? extraJs : '' %>
+</body>
+
+</html>
